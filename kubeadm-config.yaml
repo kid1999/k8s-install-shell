@@ -1,0 +1,34 @@
+apiVersion: kubelet.config.k8s.io/v1beta1
+kind: KubeletConfiguration
+failSwapOn: false
+#禁用swap检测
+cgroupDriver: systemd
+#修改driver为systemd
+#rotateCertificates: true
+# 开启证书轮询
+---
+apiVersion: kubeadm.k8s.io/v1beta2
+kind: InitConfiguration
+localAPIEndpoint:
+  advertiseAddress: 192.168.56.102
+  bindPort: 6443
+nodeRegistration:
+  taints:
+  - effect: PreferNoSchedule
+    key: node-role.kubernetes.io/master
+---
+apiVersion: kubeadm.k8s.io/v1beta2
+kind: ClusterConfiguration
+imageRepository: registry.aliyuncs.com/google_containers
+kubernetesVersion: v1.20.4
+networking:
+  podSubnet: 10.244.0.0/16
+  serviceSubnet: 10.96.0.0/12
+# apiServer:
+#   extraArgs:
+#     service-node-port-range: "1-65535"
+---
+apiVersion: kubeproxy.config.k8s.io/v1alpha1
+kind: KubeProxyConfiguration
+clusterCIDR: "10.244.0.0/16"
+mode: "ipvs"
